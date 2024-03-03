@@ -2,12 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const port = app.get(ConfigService).get<number>('PORT');
   loadSwagger(app);
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(3004);
+  await app.listen(port);
 }
 
 function loadSwagger(app: INestApplication<any>) {
