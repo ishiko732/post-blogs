@@ -7,7 +7,7 @@ import {
   Post,
   Request,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from '@/users/users.types';
 import { Public } from '@/lib/metaData/public';
@@ -26,6 +26,8 @@ export class AuthController {
   }
 
   @Get('profile')
+  @ApiOperation({ summary: 'Profile' })
+  @ApiBearerAuth()
   getProfile(@Request() req) {
     return req.user;
   }

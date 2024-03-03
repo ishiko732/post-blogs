@@ -14,6 +14,10 @@ function loadSwagger(app: INestApplication<any>) {
   const options = new DocumentBuilder()
     .setTitle('Posts example')
     .setDescription('The posts API description')
+    .addSecurity('bearer', {
+      type: 'http',
+      scheme: 'bearer',
+    })
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, options);
