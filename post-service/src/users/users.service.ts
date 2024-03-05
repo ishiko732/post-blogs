@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { User } from './users.types';
+import { RegisterDto, User } from './users.types';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -9,17 +10,28 @@ export class UsersService {
       {
         userId: 1,
         username: 'john',
-        password: 'changeme',
+        password: bcrypt.hash('changeme', 10),
       },
       {
         userId: 2,
         username: 'maria',
-        password: 'guess',
+        password: bcrypt.hash('guess', 10),
       },
     ];
   }
 
   async findOne(username: string) {
     return this.users.find((user) => user.username === username);
+  }
+
+  async create(registerDto: RegisterDto) {
+    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    const user: User = {
+      userId: this.users.length + 1,
+      ...registerDto,
+      password: hashedPassword,
+    };
+    this.users.push(user);
+    return user;
   }
 }
