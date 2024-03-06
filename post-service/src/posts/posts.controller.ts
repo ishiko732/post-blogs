@@ -8,11 +8,12 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { postCreateInput } from './dto/post-create.input';
 
 @Controller('posts')
 @ApiTags('posts')
+@ApiBearerAuth()
 export class PostsController {
   @Get()
   @ApiOperation({ summary: 'Get all posts' })
