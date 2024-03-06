@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  // directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model Post {
+  id        Int       @id @default(autoincrement())
+  createdAt BigInt    @default(dbgenerated("extract(epoch from now())"))
+  updatedAt BigInt
+  title     String    @db.VarChar(255)
+  content   String?
+  published Boolean   @default(false)
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  Int
+  link      String?   @unique
+  hash      String?   @unique
+  review    Int       @default(0)
+  love      Int       @default(0)
+  note      Note[]
+  Comment   Comment[]
+}
+
+model Comment {
+  id        Int     @id @default(autoincrement())
+  createdAt BigInt  @default(dbgenerated("extract(epoch from now())"))
+  updatedAt BigInt
+  content   String
+  post      Post    @relation(fields: [postId], references: [id])
+  postId    Int
+  uuid      String
+  oauth     String?
+  email     String
+  username  String
+  avatarUrl String?
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  email      String      @unique
+  name       String?
+  password   String      @db.VarChar(255)
+  avatarUrl  String?
+  uuid       String
+  posts      Post[]
+  parameters Parameters?
+}
+
+model Parameters {
+  uid               Int     @id @unique
+  request_retention Float   @default(0.9)
+  maximum_interval  Int     @default(36500)
+  w                 Json
+  enable_fuzz       Boolean @default(false)
+  card_limit        Int     @default(50)
+  lapses            Int     @default(8)
+  User              User    @relation(fields: [uid], references: [id])
+}
+
+model Note {
+  nid      Int     @id @unique @default(autoincrement())
+  question String  @default("")
+  answer   String  @default("")
+  extend   Json
+  deleted  Boolean @default(false)
+  Post     Post?   @relation(fields: [postId], references: [id])
+  postId   Int?
+  Card     Card[]
+}
+
+model Card {
+  cid            Int             @id @unique @default(autoincrement())
+  due            BigInt          @default(dbgenerated("extract(epoch from now())"))
+  stability      Float
+  difficulty     Float
+  elapsed_days   Int
+  scheduled_days Int
+  reps           Int
+  lapses         Int
+  state          State           @default(New)
+  last_review    BigInt          @default(0)
+  nid            Int             @unique
+  note           Note            @relation(fields: [nid], references: [nid])
+  suspended      Boolean         @default(false)
+  deleted        Boolean         @default(false)
+  RevlogCard     RevlogCardRel[]
+}
+
+model Revlog {
+  lid               String          @id @unique @default(cuid())
+  grade             Rating
+  state             State
+  due               BigInt
+  stability         Float
+  difficulty        Float
+  elapsed_days      Int
+  last_elapsed_days Int
+  scheduled_days    Int
+  review            BigInt
+  duration          BigInt
+  deleted           Boolean         @default(false)
+  RevlogCard        RevlogCardRel[]
+}
+
+model RevlogCardRel {
+  uuid   String @default(cuid())
+  lid    String
+  revlog Revlog @relation(fields: [lid], references: [lid])
+  cid    Int
+  card   Card   @relation(fields: [cid], references: [cid])
+
+  @@id([lid, cid, uuid])
+}
+
+enum State {
+  New        @map("New")
+  Learning   @map("Learning")
+  Review     @map("Review")
+  Relearning @map("Relearning")
+}
+
+enum Rating {
+  Manual @map("Manual")
+  Again  @map("Again")
+  Hard   @map("Hard")
+  Good   @map("Good")
+  Easy   @map("Easy")
+}
