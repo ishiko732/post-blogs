@@ -105,12 +105,11 @@ export class AuthService {
     }
 
     const expiresIn = 1 * 24 * 60 * 60 * 1000;
-    const expiration = Math.floor(Date.now() / 1000) + expiresIn;
     const accessToken = this.jwtService.sign(
       { username: payload.username, sub: payload.sub },
       {
         secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
-        expiresIn: expiration,
+        expiresIn: expiresIn,
       },
     );
     res.cookie('access_token', accessToken, { httpOnly: true });
