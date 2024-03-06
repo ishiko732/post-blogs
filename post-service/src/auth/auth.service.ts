@@ -8,8 +8,8 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { Request, Response } from 'express';
-import { TokenResp } from './auth.types';
+import { Response } from 'express';
+import { Token, TokenResp } from './auth.types';
 
 @Injectable()
 export class AuthService {
@@ -33,7 +33,7 @@ export class AuthService {
   async register(registerDto: RegisterDto, response: Response) {
     const existingUser = await this.usersService.findOne(registerDto.username);
     if (existingUser) {
-      throw new BadRequestException({ email: 'Email already in use' });
+      throw new BadRequestException({ username: 'Username already in use' });
     }
     const user = await this.usersService.create(registerDto);
 
@@ -86,16 +86,14 @@ export class AuthService {
     return null;
   }
 
-  async refreshToken(req: Request, res: Response) {
-    const refreshToken = req.cookies['refresh_token'];
-
+  async refreshToken(refreshToken: string, res: Response) {
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token not found');
     }
-    let payload;
+    let payload: Token;
 
     try {
-      payload = this.jwtService.verify(refreshToken, {
+      payload = this.jwtService.verify<Token>(refreshToken, {
         secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
       });
     } catch (error) {
@@ -106,12 +104,13 @@ export class AuthService {
       throw new BadRequestException('User no longer exists');
     }
 
-    const expiresIn = 15000;
+    const expiresIn = 1 * 24 * 60 * 60 * 1000;
     const expiration = Math.floor(Date.now() / 1000) + expiresIn;
     const accessToken = this.jwtService.sign(
-      { ...payload, exp: expiration },
+      { username: payload.username, sub: payload.sub },
       {
         secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
+        expiresIn: expiration,
       },
     );
     res.cookie('access_token', accessToken, { httpOnly: true });

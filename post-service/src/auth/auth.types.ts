@@ -19,3 +19,10 @@ export class TokenReq {
   exp: number;
   token: string;
 }
+
+export class Token {
+  username: string;
+  sub: number;
+  iat: number;
+  exp: number;
+}
