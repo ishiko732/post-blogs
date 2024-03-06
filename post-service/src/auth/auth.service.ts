@@ -114,12 +114,17 @@ export class AuthService {
     );
     res.cookie('access_token', accessToken, { httpOnly: true });
 
-    return accessToken;
+    return {
+      access_token: accessToken,
+      expires: Date.now() + expiresIn,
+    };
   }
 
   async logout(response: Response) {
     response.clearCookie('access_token');
     response.clearCookie('refresh_token');
-    return 'Successfully logged out';
+    return {
+      message: 'Logged out',
+    };
   }
 }

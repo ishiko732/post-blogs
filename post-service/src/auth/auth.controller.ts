@@ -45,7 +45,7 @@ export class AuthController {
     console.log(user);
     return info;
   }
-  @Get('register')
+  @Post('register')
   @ApiOperation({ summary: 'Register' })
   @Public()
   async register(
@@ -66,6 +66,14 @@ export class AuthController {
     @Response() resp: ExpressResponse,
   ) {
     const data = await this.authService.refreshToken(token, resp);
+    return resp.json(data);
+  }
+
+  @Get('logout')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Logout' })
+  async logout(@Response() resp: ExpressResponse) {
+    const data = await this.authService.logout(resp);
     return resp.json(data);
   }
 }

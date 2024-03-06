@@ -20,10 +20,13 @@ export class LoginUserDto {
 }
 
 export class RegisterDto {
+  @ApiProperty({ required: true, example: 'john1' })
   @IsNotEmpty()
   username: string;
+  @ApiProperty({ required: true, example: 'test1234' })
   @IsNotEmpty()
   password: string;
+  @ApiProperty({ required: true, example: 'test@gmail.com' })
   @IsNotEmpty()
   email: string;
 }
