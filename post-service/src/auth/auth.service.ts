@@ -1,5 +1,5 @@
 import { UsersService } from '@/users/users.service';
-import { NoPasswordUser, RegisterDto, User } from '@/users/users.types';
+import { NoPasswordUser, RegisterDto } from '@/users/users.types';
 import {
   BadRequestException,
   Injectable,
@@ -9,6 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
+import { TokenResp } from './auth.types';
 
 @Injectable()
 export class AuthService {
@@ -21,9 +22,9 @@ export class AuthService {
     username: string,
     pass: string,
     response: Response,
-  ): Promise<any> {
-    const user = await this.usersService.findOne(username);
-    if (user?.password !== pass) {
+  ): Promise<TokenResp> {
+    const user = await this.validateUser(username, pass);
+    if (!user) {
       throw new UnauthorizedException();
     }
     return this.issueTokens(user, response);
@@ -39,16 +40,17 @@ export class AuthService {
     return this.issueTokens(user, response);
   }
 
-  private async issueTokens(user: User, response: Response) {
+  private async issueTokens(
+    user: NoPasswordUser,
+    response: Response,
+  ): Promise<TokenResp> {
     const payload = { username: user.username, sub: user.userId };
 
-    const accessToken = this.jwtService.sign(
-      { ...payload },
-      {
-        secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
-        expiresIn: '150sec',
-      },
-    );
+    const now = new Date();
+    const accessToken = this.jwtService.sign(payload, {
+      secret: this.configService.get<string>('ACCESS_TOKEN_SECRET'),
+      expiresIn: '1d', //'300s',
+    });
     const refreshToken = this.jwtService.sign(payload, {
       secret: this.configService.get<string>('REFRESH_TOKEN_SECRET'),
       expiresIn: '7d',
@@ -58,7 +60,17 @@ export class AuthService {
     response.cookie('refresh_token', refreshToken, {
       httpOnly: true,
     });
-    return { user };
+    return {
+      user,
+      token: {
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      },
+      expires: {
+        access_token: now.getTime() + 300 * 1000,
+        refresh_token: now.getTime() + 7 * 24 * 60 * 60 * 1000,
+      },
+    };
   }
 
   async validateUser(

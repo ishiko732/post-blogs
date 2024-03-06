@@ -21,7 +21,14 @@ export class UsersService {
   }
 
   async findOne(username: string) {
-    return this.users.find((user) => user.username === username);
+    const user = this.users.find((user) => user.username === username);
+    if (user) {
+      return {
+        ...user,
+        password: await user.password,
+      };
+    }
+    return null;
   }
 
   async create(registerDto: RegisterDto) {
