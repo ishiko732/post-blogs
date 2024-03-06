@@ -31,6 +31,17 @@ export class UsersService {
     return null;
   }
 
+  async findById(userId: number) {
+    const user = this.users.find((user) => user.userId === userId);
+    if (user) {
+      return {
+        ...user,
+        password: await user.password,
+      };
+    }
+    return null;
+  }
+
   async create(registerDto: RegisterDto) {
     const hashedPassword = await bcrypt.hash(registerDto.password, 10);
     const user: User = {

@@ -5,20 +5,14 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  Req,
   Response,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginUserDto, RegisterDto, User } from '@/users/users.types';
 import { Public } from '@/lib/metaData/public';
-import { Response as ExpressResponse, Request } from 'express';
-import {
-  Cookies,
-  RefreshToken,
-  TokenAbstract,
-  UserEntity,
-} from '@/users/user.decorator';
+import { Response as ExpressResponse } from 'express';
+import { LoginUser, RefreshToken, TokenAbstract } from '@/users/user.decorator';
 import { TokenReq } from './auth.types';
 
 @Controller('auth')
@@ -46,7 +40,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Profile' })
   @ApiBearerAuth()
   // @UsePipes(TokenAbstractPipe)
-  getProfile(@TokenAbstract() info: TokenReq, @UserEntity() user: User) {
+  getProfile(@TokenAbstract() info: TokenReq, @LoginUser() user: User) {
     // console.log(info);
     console.log(user);
     return info;
@@ -66,13 +60,11 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh' })
   @Public()
   async refresh(
-    @Cookies('refresh_token') _token: string,
+    // @Cookies('refresh_token') _token: string,
     @RefreshToken() token: string,
-    @Req() req: Request,
+    // @Req() req: Request,
     @Response() resp: ExpressResponse,
   ) {
-    console.log(_token);
-    console.log(token);
     const data = await this.authService.refreshToken(token, resp);
     return resp.json(data);
   }

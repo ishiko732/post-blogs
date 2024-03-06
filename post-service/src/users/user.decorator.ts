@@ -29,7 +29,7 @@ export const Cookies = createParamDecorator(
   },
 );
 
-export const UserEntity = createParamDecoratorWithInjections(
+export const LoginUser = createParamDecoratorWithInjections(
   async (
     data: unknown,
     ctx: ExecutionContext,
@@ -41,6 +41,20 @@ export const UserEntity = createParamDecoratorWithInjections(
     }
     const userToken = request['user'] as TokenReq;
     return await services.user.findOne(userToken.username);
+  },
+  { user: UsersService },
+);
+
+export const UserEntity = createParamDecoratorWithInjections(
+  async (
+    data: number,
+    ctx: ExecutionContext,
+    services: { user: UsersService },
+  ) => {
+    if (!data || (data as unknown) instanceof Object) {
+      return null;
+    }
+    return await services.user.findById(data);
   },
   { user: UsersService },
 );
