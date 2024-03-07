@@ -21,7 +21,12 @@
       "@/*": ["./src/*"],
       "@auth/*": ["./src/auth/*"],
       "@users/*": ["./src/users/*"],
-      "@posts/*": ["./src/posts/*"]
+      "@posts/*": ["./src/posts/*"],
+      "@comments/*": ["./src/comments/*"],
+      "@notes/*": ["./src/notes/*"],
+      "@fsrs/*": ["./src/fsrs/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@lib/*": ["./src/lib/*"],
     }
   },
 }
