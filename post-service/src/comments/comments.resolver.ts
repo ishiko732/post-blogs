@@ -3,13 +3,18 @@ import { CommentsService } from './comments.service';
 import { Comment } from './entities/comment.entity';
 import { CreateCommentInput } from './dto/create-comment.input';
 import { UpdateCommentInput } from './dto/update-comment.input';
+import { GraphQLErrorFilter } from '@/filters/custom-exception.filter';
+import { UseFilters } from '@nestjs/common';
 
+@UseFilters(GraphQLErrorFilter)
 @Resolver(() => Comment)
 export class CommentsResolver {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Mutation(() => Comment)
-  createComment(@Args('createCommentInput') createCommentInput: CreateCommentInput) {
+  createComment(
+    @Args('createCommentInput') createCommentInput: CreateCommentInput,
+  ) {
     return this.commentsService.create(createCommentInput);
   }
 
@@ -24,8 +29,13 @@ export class CommentsResolver {
   }
 
   @Mutation(() => Comment)
-  updateComment(@Args('updateCommentInput') updateCommentInput: UpdateCommentInput) {
-    return this.commentsService.update(updateCommentInput.id, updateCommentInput);
+  updateComment(
+    @Args('updateCommentInput') updateCommentInput: UpdateCommentInput,
+  ) {
+    return this.commentsService.update(
+      updateCommentInput.id,
+      updateCommentInput,
+    );
   }
 
   @Mutation(() => Comment)

@@ -3,7 +3,10 @@ import { NotesService } from './notes.service';
 import { Note } from './entities/note.entity';
 import { CreateNoteInput } from './dto/create-note.input';
 import { UpdateNoteInput } from './dto/update-note.input';
+import { GraphQLErrorFilter } from '@/filters/custom-exception.filter';
+import { UseFilters } from '@nestjs/common';
 
+@UseFilters(GraphQLErrorFilter)
 @Resolver(() => Note)
 export class NotesResolver {
   constructor(private readonly notesService: NotesService) {}

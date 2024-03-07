@@ -3,7 +3,10 @@ import { FsrsService } from './fsrs.service';
 import { Fsr } from './entities/fsr.entity';
 import { CreateFsrInput } from './dto/create-fsr.input';
 import { UpdateFsrInput } from './dto/update-fsr.input';
+import { GraphQLErrorFilter } from '@/filters/custom-exception.filter';
+import { UseFilters } from '@nestjs/common';
 
+@UseFilters(GraphQLErrorFilter)
 @Resolver(() => Fsr)
 export class FsrsResolver {
   constructor(private readonly fsrsService: FsrsService) {}

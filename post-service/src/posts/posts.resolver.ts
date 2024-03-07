@@ -3,7 +3,10 @@ import { PostsService } from './posts.service';
 import { Post } from './entities/post.entity';
 import { CreatePostInput } from './dto/create-post.input';
 import { UpdatePostInput } from './dto/update-post.input';
+import { GraphQLErrorFilter } from '@/filters/custom-exception.filter';
+import { UseFilters } from '@nestjs/common';
 
+@UseFilters(GraphQLErrorFilter)
 @Resolver(() => Post)
 export class PostsResolver {
   constructor(private readonly postsService: PostsService) {}

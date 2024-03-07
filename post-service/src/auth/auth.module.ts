@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
+import { AuthResolver } from './auth.resolver';
 
 @Module({
   controllers: [AuthController],
@@ -15,6 +16,7 @@ import { AuthGuard } from './auth.guard';
       provide: APP_GUARD,
       useClass: AuthGuard,
     },
+    AuthResolver,
   ],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
