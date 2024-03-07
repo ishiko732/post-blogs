@@ -12,7 +12,8 @@ import { AuthService } from './auth.service';
 import { LoginUserDto, RegisterDto, User } from '@/users/users.types';
 import { Public } from '@/lib/metaData/public';
 import { Response as ExpressResponse } from 'express';
-import { LoginUser, RefreshToken, TokenAbstract } from '@/users/user.decorator';
+import { LoginUser } from '@users/user.decorator';
+import { RefreshToken, TokenAbstract } from '@auth/auth.decorator';
 import { TokenReq } from './auth.types';
 
 @Controller('auth')
