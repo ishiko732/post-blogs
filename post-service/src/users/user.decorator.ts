@@ -2,19 +2,27 @@ import { ExecutionContext } from '@nestjs/common';
 import { TokenReq } from '@/auth/auth.types';
 import { createParamDecoratorWithInjections } from '@/lib/metaData/DecorationWithInjects';
 import { UsersService } from './users.service';
+import { getRequest } from '@/lib/getRequest';
+import { User } from './users.types';
 
 export const LoginUser = createParamDecoratorWithInjections(
   async (
-    data: unknown,
+    data: 'id' | 'username' | undefined,
     ctx: ExecutionContext,
     services: { user: UsersService },
   ) => {
-    const request = ctx.switchToHttp().getRequest();
-    if (!request['user']) {
+    const request = getRequest(ctx);
+    if (!request || !request['user']) {
       return null;
     }
     const userToken = request['user'] as TokenReq;
-    return await services.user.findOne(userToken.username);
+    if (data === 'id') {
+      return Number(userToken.sub);
+    } else if (data === 'username') {
+      return userToken.username;
+    } else {
+      return (await services.user.findById(userToken.sub)) as User;
+    }
   },
   { user: UsersService },
 );
