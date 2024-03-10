@@ -127,4 +127,21 @@ export class AuthService {
       message: 'Logged out',
     };
   }
+
+  extractToken(connectionParams: any): string | null {
+    return connectionParams?.token || null;
+  }
+
+  validateRefreshToken(refreshToken: string) {
+    const refreshTokenSecret = this.configService.get<string>(
+      'REFRESH_TOKEN_SECRET',
+    );
+    try {
+      return this.jwtService.verify<Token>(refreshToken, {
+        secret: refreshTokenSecret,
+      });
+    } catch (error) {
+      return null;
+    }
+  }
 }
